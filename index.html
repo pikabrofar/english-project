@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+</head>
+<body>
+<title>Taylor English</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz@0,6..96;1,6..96&family=Cinzel:wght@500&family=Pinyon+Script&display=swap">
+<style>
+:root {
+--void: #0f0b08;
+--cream: #f3ebdb;
+--cream-dim: #d4c6ad;
+--brass: #d8b46a;
+--gilt-light: #d4b066;
+--mat: #ece5d3;
+--scrim: rgba(14, 9, 6, .74);
+--shadow: rgba(0, 0, 0, .55);
+--light: rgba(255, 228, 180, .22);
+
+--heading: "Pinyon Script", cursive;
+--body: "Bodoni Moda", Didot, serif;
+--label: Cinzel, serif;
+
+--pad: clamp(48px, 9vh, 110px) max(20px, 6vw);
+--hang: clamp(3rem, 8vw, 8.5rem);
+--cols: minmax(0, 1fr) minmax(0, 1.1fr);
+color-scheme: dark;
+}
+
+body { background: var(--void); color: var(--cream); font-family: var(--body); }
+
+/* the 3D hall */
+.stage { position: fixed; inset: 0; overflow: hidden; }
+.world { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; will-change: transform; }
+.plane, section { position: absolute; backface-visibility: hidden; }
+
+.bay { background: linear-gradient(var(--shade, transparent) 0 0), linear-gradient(rgba(20,10,4,.18), transparent 30%), var(--tex) 0 0 / 100% 100% no-repeat; }
+.bay.wide { --tex: url("textures/wall-wide.jpg"); }
+.bay.narrow-a { --tex: url("textures/wall-narrow-a.jpg"); }
+.bay.narrow-b { --tex: url("textures/wall-narrow-b.jpg"); }
+.bay.side { --shade: rgba(0,0,0,.14); }
+.floor { background-image: linear-gradient(rgba(0,0,0,.18) 0 0), url("textures/floor.jpg"); }
+.ceiling { background-image: linear-gradient(rgba(0,0,0,.38) 0 0), url("textures/ceiling.jpg"); }
+
+.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(transparent 55%, rgba(8,5,3,.45)); }
+
+/* text on each wall */
+section { overflow: hidden; box-sizing: border-box; padding: var(--pad); }
+.reader {
+position: relative; overflow: hidden; min-height: 0;
+mask-image: linear-gradient(transparent, #000 8%, #000 88%, transparent);
+}
+.text { padding: 2rem 0 3.5rem; will-change: transform; }
+.text p { font-size: clamp(1.12rem, .92rem + .55vw, 1.42rem); font-style: italic; line-height: 1.62; margin: 0 0 1.05em; text-wrap: pretty; }
+
+.text > :not(h2, h3, .section-label) { margin-left: var(--hang); }
+.text .section-label { font: clamp(3rem, 2rem + 3.2vw, 5.4rem)/1.15 var(--heading); color: var(--brass); margin: 0 0 1.2rem; }
+.text h3 { font: 400 clamp(2.1rem, 1.6rem + 1.5vw, 3.1rem)/1.2 var(--heading); color: var(--brass); margin: 1em 0 .2em; }
+.art h2 { font: 400 clamp(3.2rem, 1.8rem + 4vw, 5.8rem)/1.15 var(--heading); color: var(--brass); margin: 0 0 .3rem; text-wrap: balance; }
+
+.section-label::first-letter, h3::first-letter, h2::first-letter { font-size: 2.2em; color: var(--gilt-light); }
+
+section:not(.art) { display: flex; justify-content: center; }
+.float::before {
+content: ""; position: absolute; left: 50%; top: 50%; width: min(1100px, 130%); height: 120%;
+transform: translate(-50%, -50%); pointer-events: none;
+background: radial-gradient(var(--scrim) 38%, transparent 72%);
+}
+section:not(.art) .reader { width: min(calc(62ch + var(--hang)), 100%); }
+.float .text p { text-shadow: 0 1px 14px rgba(0,0,0,.75); }
+
+/* artist's statement: fades in over black */
+.blackout { position: fixed; inset: 0; z-index: 3; background: #000; opacity: 0; pointer-events: none; }
+.float { position: fixed; inset: 0; z-index: 4; }
+
+/* artwork rooms: painting on the left, label on the right */
+.art { --hang: clamp(2rem, 4.5vw, 5rem); display: grid; grid-template-columns: var(--cols); gap: clamp(28px, 5vw, 90px); }
+.art.wide-art { --cols: minmax(0, 1.25fr) minmax(0, 1fr); }
+.art.wide-art h2 { font-size: clamp(2.6rem, 1.5rem + 2.7vw, 4.4rem); }
+.art figure { margin: 0; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; }
+.art figure::before {
+content: ""; position: absolute; left: 50%; top: 50%; width: 140%; aspect-ratio: 1;
+transform: translate(-50%, -50%); background: radial-gradient(circle, var(--light), transparent 58%);
+}
+
+/* frame.png is stretched around each picture, corners stay intact */
+.painting {
+position: relative; width: min(34vw, 48vh); max-width: 100%; height: auto;
+padding: clamp(8px, 1.4vw, 24px); background: var(--mat) padding-box;
+border: clamp(28px, 4.2vw, 64px) solid transparent;
+border-image: url("textures/frame.png") 62 57 62 54 stretch;
+box-shadow: inset 0 2px 8px rgba(0,0,0,.25);
+filter: drop-shadow(0 26px 26px var(--shadow));
+}
+.painting.landscape { width: min(46vw, 100%); box-sizing: border-box; border-image-source: url("textures/frame-landscape.png"); border-image-slice: 57 62 54 62; }
+
+.text .work-meta { font-style: normal; font-size: clamp(1.05rem, .9rem + .4vw, 1.3rem); line-height: 1.5; color: var(--cream-dim); letter-spacing: .02em; margin-bottom: 1.6em; }
+.text > :not(.finale) { opacity: calc(1 - var(--fin, 0)); }
+/* end screen: The Misfit fades in behind the closing line */
+.figure {
+position: absolute; left: 50%; bottom: 0; height: 92%; width: auto; transform: translateX(-50%); pointer-events: none;
+/* half out of the dark: dimmed, and his edges and lower body dissolve into the black */
+opacity: calc(var(--fin, 0) * .85); filter: brightness(.5) contrast(1.1);
+mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 25%, rgba(0,0,0,.55) 55%, transparent 90%);
+}
+.overlay .reader { z-index: 1; }
+.finale { text-shadow: 0 0 6px #000, 0 2px 22px #000, 0 0 40px #000 !important; }
+.text p cite { font-style: normal; }
+.text .work-meta cite { font-style: italic; color: var(--cream); }
+blockquote {
+margin: 1.6rem 0 1.8rem; padding-left: 1.2rem; border-left: 2px solid var(--brass);
+font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem); line-height: 1.35;
+}
+blockquote cite { display: block; margin-top: .7rem; font: normal .8rem var(--label); letter-spacing: .14em; text-transform: uppercase; color: var(--cream-dim); }
+
+/* little scroll cue at the start */
+.hint {
+position: fixed; z-index: 5; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+width: 1px; height: 34px; pointer-events: none; transition: opacity .4s; transform-origin: top;
+background: linear-gradient(var(--brass), transparent); animation: drip 1.8s ease-in-out infinite;
+}
+.hint.gone { opacity: 0; }
+@keyframes drip { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* phones */
+@media (max-width: 760px) {
+:root { --pad: 56px max(18px, 5vw) 72px; --hang: 1.8rem; }
+.art { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+.painting { width: min(52vw, 26vh); border-width: 22px; padding: 6px; }
+.painting.landscape { width: min(82vw, 44vh); box-sizing: content-box; }
+.art h2 { font-size: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hint { animation: none; } }
+</style>
+
+<!-- Exhibit statement -->
+<section class="float" data-place="start">
+<div class="reader"><div class="text">
+<p class="section-label">Exhibit Statement</p>
+<p>In “A Good Man Is Hard to Find,” the grandmother is confident she is an upright individual, and that confidence, or ego, is what prevents her from truly seeing her real self.</p>
+<p>Her lady’s clothes, good memory of the road, and the way she speaks of Jesus all work to blind her.</p>
+<p>O’Connor allows the grandmother to truthfully see herself when The Misfit uses violence to strip those things away from her. It also creates a moment where grace is possible.</p>
+<p>This exhibit is built around two paintings, both depicting people falling. Pieter Bruegel’s line of blind men fall into a ditch. In Caravaggio’s painting, Saint Paul gets thrown on a road and falls in light.</p>
+<p>The grandmother experiences both events. She leads her family down the wrong path and into a ditch. Shortly after, she feels death in the face of a gun, seeing clearly what she is for probably the first time in her life.</p>
+<p>The rooms are ordered with the book.</p>
+<p>Room 1 is who she sees herself as.</p>
+<p>Room 2 is the blindness and arrogance that comes with it.</p>
+<p>Room 3 depicts her encounter with The Misfit, and her identity crumbling.</p>
+<p>Room 4 asks what she finds in her last moments.</p>
+</div></div>    </section>
+
+<div class="stage" id="stage">
+<div class="world" id="world">
+
+
+<!-- Room 1 · front left -->
+<section class="art" data-place="L1">
+<figure><img class="painting" src="artworks/american-gothic.png" width="330" height="399" alt="Grant Wood’s American Gothic: a stern farmer holding a pitchfork stands beside a woman in front of a white farmhouse with a pointed Gothic window."></figure>
+<div class="reader"><div class="text">
+<h2>Grant Wood</h2>
+<p class="work-meta"><cite>American Gothic</cite>, 1930<br>Oil on beaverboard</p>
+<p>Grant Wood’s oil painting shows an Iowa farmer and his daughter in front of a farmhouse.</p>
+<p>The farmhouse architecturally partially resembles a church. The two figures pose as good, God-fearing citizens. The painting does not let you forget the pose and facial expressions.</p>
+<p>It resembles the grandmother before the trip. She pins “a purple spray of cloth violets” (3) around her neck, so in the event of a fatal accident, anyone who sees her corpse “would know at once that she was a lady” (3).</p>
+<p>Like the figures in Wood’s painting, the grandmother presents an image of respectability and ladylikeness. Her supposed goodness is a decoration and a facade, something she carefully constructs through her clothing and manners.</p>
+<p>Debate exists on whether Wood is admiring or mocking the two figures. The most offended people who saw the painting looked the most like the two figures in the painting.</p>
+<p>Flannery O’Connor’s satire works similarly. It’s easy to criticize the grandmother for caring too much about manners, while we judge people that way at the same time.</p>
+<p>In the end, acting and dressing like a lady doesn’t save her. After the crash, the brim of her hat comes off in her hand, and she allows it to fall onto the ground.</p>
+</div></div>    </section>
+
+<!-- Room 2 · back right -->
+<section class="art wide-art" data-place="R2">
+<figure><img class="painting landscape" src="artworks/blind-leading-the-blind.jpg" width="1600" height="901" alt="Pieter Bruegel the Elder’s The Blind Leading the Blind: six blind men holding staffs and each other’s shoulders stumble in a line toward a ditch, where the leader has already fallen, with a village church behind them."></figure>
+<div class="reader"><div class="text">
+<h2>Pieter Bruegel the Elder</h2>
+<p class="work-meta"><cite>The Blind Leading the Blind</cite>, 1568</p>
+<p>Bruegel depicts scripture in the New Testament.</p>
+<blockquote>“if the blind lead the blind, both shall fall into the ditch.”<cite>Matthew 15:14</cite></blockquote>
+<p>Six blind men hold onto each other, falling into the ditch as they blindly follow the leader. They’re dressed well, heads held up, as if they’re sure of themselves and confident in following whoever’s in front of them.</p>
+<p>The faces are illustrated grotesquely.</p>
+<p>The grandmother is the line leader. She makes up lies about an old plantation house, and convinces her family to go down an isolated dirt road. She had a moment of embarrassment that led to her “upsetting her valise” (12), revealing a hidden cat, and ending with a flipped car in a ditch.</p>
+<p>The house turned out to be “not in Georgia but in Tennessee” (12).</p>
+<p>Her blindness is not physical.</p>
+<p>She sees herself, the South, and the past the way she wants it to be. She even romanticized poverty, pointing out a poor black child, stating she’d like to paint him.</p>
+<p>Like Bruegel’s artwork depicts, the grandmother leads and drags everyone down with her, as a result of her poor actions and mentality.</p>
+</div></div>    </section>
+
+<!-- Room 3 · front right -->
+<section class="art wide-art" data-place="R1">
+<figure><img class="painting landscape" src="artworks/the-misfit.jpg" width="1535" height="1024" alt="Pen drawing: The Misfit, in a hat and fish-print shirt, points a gun at the grandmother’s head. She raises one hand in fear and holds up a cross with the other, while a small angel and devil float beside him saying “Do it.”"></figure>
+<div class="reader"><div class="text">
+<h2>Taylor Pan</h2>
+<p class="work-meta"><cite>The Misfit</cite>, 2026<br>Pen on paper</p>
+<p>My drawing shows the climax of the story. The Misfit aims his gun at the grandmother, who throws a hand up in fear, and holds a cross at The Misfit with the other arm. While there is no cross in the story, I added it because I felt as if the grandmother used her faith as a shield.</p>
+<p>She tells The Misfit that he doesn’t look like he has “common blood” (15).</p>
+<p>She follows it by crying and begging for her life.</p>
+<blockquote>“Pray! Jesus, you ought not to shoot a lady”<cite>p. 21</cite></blockquote>
+<p>Surrounding The Misfit, an angel and devil both encourage him to shoot.</p>
+<blockquote>“Do it.”</blockquote>
+<p>The devil wants a murder. The angel wants what the shot will lead to.</p>
+<p>The Misfit explains the logic himself.</p>
+<blockquote>“She would of been a good woman,” The Misfit said, “if it had been somebody there to shoot her every minute of her life”<cite>p. 23</cite></blockquote>
+<p>This drawing depicts the moment as her fear turns into recognition.</p>
+</div></div>    </section>
+
+<!-- Room 4 · back left -->
+<section class="art" data-place="L2">
+<figure><img class="painting" src="artworks/conversion-of-saint-paul.jpg" width="500" height="624" alt="Caravaggio’s The Conversion of Saint Paul: Saul lies on his back on the ground with his hands over his face, thrown from a horse, as an old soldier with a spear and an angel lean over him in dramatic light."></figure>
+<div class="reader"><div class="text">
+<h2>Caravaggio</h2>
+<p class="work-meta"><cite>The Conversion of Saint Paul</cite>, 1601<br>Oil on canvas</p>
+<p>On the road to Damascus, Saul, a persecutor of Christians, is thrown from a horse, facing a blinding light from heaven. He is painted on his back, arms up, helpless, as light pours onto him.</p>
+<p>The grandmother is struck down like Saul, from the car on the road into the ditch.</p>
+<p>“The grandmother’s head cleared for an instant” (22) when The Misfit’s voice “seemed about to crack” (22). This moment causes the grandmother to see The Misfit as one of her own.</p>
+<blockquote>“Why you’re one of my babies. You’re one of my own children!”<cite>p. 22</cite></blockquote>
+<p>He then shoots her. She lies in the ditch, like Bruegel’s blind men. Like Paul on the ground, she lies with her “face smiling up at the cloudless sky” (22).</p>
+<p>Paul’s conversion lasted his entire life. The grandmother’s conversion lasted a moment.</p>
+<p>A question I had was whether her smile symbolized redemption or spiritual change, or does the empty sky symbolize that there is nothing to see? No God? No true change?</p>
+</div></div>    </section>
+
+<!-- Curator's reflection -->
+<section class="panel" data-place="far">
+<div class="reader"><div class="text">
+<p class="section-label">Curator’s Reflection</p>
+<p>O’Connor was a devout Christian (Catholic) who thought grace wasn’t earned. She wrote how violence brings people back into reality and prepares them to receive grace: exactly like what the grandmother experienced.</p>
+<p>Many symbols connect to that belief. The hat, violet, and her outfit are what the grandmother worshipped. Not God. Not Jesus. She hands out “good man” loosely to people with manners. The road resembles her blindness. The gun is the violence that allows grace to reach her. The cross (though not in the story) is how she believes faith will protect her, even though she won’t change herself to truly reflect Christian values.</p>
+<p>The Misfit, a murderer, is the only one who takes Jesus seriously. While he is not a Christian, he doesn’t dismiss it as just another religion or moral reasoning. He has conflicting opinions about the resurrection of Christ, and how it affects how someone should live.</p>
+<p>The grandmother claims Christianity for convenience.</p>
+<p>He rejects Christianity after considering the implications seriously.</p>
+<p>All in all, I want viewers to be unsure if the moment before, and during the death of the grandmother, was a conversion or nothing. Did her last moments mean anything, or did they spiritually mean nothing?</p>
+</div></div>    </section>
+
+</div>
+<div class="vignette"></div>
+</div>
+
+<!-- Artist's statement -->
+<div class="blackout" id="blackout"></div>
+<section class="float overlay" data-place="end">
+<img class="figure" src="artworks/misfit-figure.png" width="323" height="812" alt="The Misfit, in a hat and patterned shirt, aiming a revolver straight at the viewer.">
+<div class="reader"><div class="text">
+<p class="section-label">Artist’s Statement</p>
+<p>My museum exhibit argues that in “A Good Man Is Hard to Find,” the grandmother is blinded by her pride and arrogance, all stemming from the belief that she is a good woman. It also argues that O’Connor uses violence to break such beliefs, humbling the grandmother, so grace can get in.</p>
+<p>Visitors follow the journey of the grandmother: the lady she tries to be, the ditch her blindness leads her and her family into, the gun, and the significance of her death.</p>
+<p>My biggest choice was pairing two paintings surrounding the theme of falling. In <cite>The Blind Leading the Blind</cite>, the fall is the result and punishment, as the leader leads everyone into a ditch. In <cite>The Conversion of Saint Paul</cite>, the fall is mercy, and spiritual change, as Paul lands with heavenly light shining on him. The grandmother experiences both. She leads her family into a ditch, and she dies with her “face smiling up at the cloudless sky” (22). I chose <cite>American Gothic</cite> as my first work because people debate whether the artist is applauding or ridiculing the subjects.</p>
+<p>For my drawing, <cite>The Misfit</cite>, I took O’Connor’s exaggeration. She makes characters and scenes very grotesque, which actually brings readers in. I gave the grandmother a cross, despite it not being in the story. She uses Jesus’s name as a shield and a reason to not be killed. “Pray! Jesus, you ought not to shoot a lady” (21). I also had the angel and devil push The Misfit to “Do it” (shoot the grandmother). When The Misfit said, “She would of been a good woman…if it had been somebody there to shoot her every minute of her life” (23), it suggests that the violence of the gun did what years of church-attendance should have done.</p>
+<p>She wears the violets so if someone found her corpse, they “would know at once that she was a lady” (3). This detail shows her moral beliefs. She worships appearance over God, exposing that she, a “Christian,” really put on a facade.</p>
+<p>I want viewers to question whether grace is real. Flannery O’Connor believed it to be real. The grandmother gets grace before she is shot moments later. Paul received grace, got up, and changed his life. The grandmother would never get the chance to. Can a flash of clear insight overshadow a lifetime of blindness, arrogance, and sin? Why did O’Connor choose to have a serial killer deliver grace?</p>
+<p>This project deepened my interpretation of “A Good Man Is Hard to Find.” At first, the grandmother seemed comical and annoying. The ending felt like pointless brutality. Looking back, when I chose Bruegel’s illustration of scripture from the New Testament, it made me realize that I judged her, in the same way she judges everyone else, making me feel partly hypocritical. Caravaggio’s painting made me see the ending as more than just cruel divine justice and punishment for her sins. O’Connor isn’t making readers debate whether the death of the grandmother is justified.</p>
+<p class="finale">Rather, she asks whether any of us would see ourselves that clearly without a gun pointed at us.</p>
+</div></div></section>
+
+<div class="hint" id="hint"></div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const stage = $('stage'), world = $('world'), hint = $('hint'), blackout = $('blackout');
+const rooms = [...document.querySelectorAll('section')];
+const floating = rooms.map(room => room.classList.contains('float'));
+const overlay = rooms.map(room => room.classList.contains('overlay'));
+const readers = rooms.map(room => ({
+  box: room.querySelector('.reader'),
+  text: room.querySelector('.text'),
+  finale: room.querySelector('.finale'),
+  overflow: 0,
+  extra: 0,
+}));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+// pixel sizes measured from the texture images
+const TEXTURE = { wide: 576, narrow: 349, wallH: 486, eyeY: 236, frameW: 492, frameH: 290, floor: 757, floorH: 506, ceil: 748, ceilH: 427 };
+
+const clamp = v => Math.max(0, Math.min(1, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - (2 - 2 * t) ** 3 / 2;
+
+let persp, texScale = 1, wideW, wallH, poses, segs = [], total = 0, cur = scrollY, last = null;
+
+const planes = {};
+function place(name, cls, w, h, x, y, z, rot = '') {
+  let el = planes[name];
+  if (!el) {
+    el = planes[name] = document.createElement('div');
+    el.className = 'plane ' + cls;
+    world.prepend(el);
+  }
+  // drawn at the texture's own size and enlarged by the GPU: a full-size copy of every piece
+  // runs Chrome out of graphics memory on big screens (black squares, missing pictures)
+  const cw = w / texScale, ch = h / texScale;
+  Object.assign(el.style, { width: cw + 'px', height: ch + 'px', left: -cw / 2 + 'px', top: -ch / 2 + 'px', transform: `translate3d(${x}px,${y}px,${z}px) ${rot} scale(${texScale})` });
+  // floor-plan corners, so render() can hide pieces that end up behind the camera
+  const a = rot.startsWith('rotateY') ? parseFloat(rot.slice(8)) * Math.PI / 180 : 0;
+  const dx = w / 2 * Math.cos(a), dz = -w / 2 * Math.sin(a), d = rot.startsWith('rotateX') ? h / 2 : 0;
+  el.corners = [[x - dx, z - dz - d], [x + dx, z + dz - d], [x - dx, z - dz + d], [x + dx, z + dz + d]];
+  return el;
+}
+
+const segAt = y => segs.find(s => y < s.start + s.len) || segs.at(-1);
+
+function layout() {
+  // remember where we were so a resize doesn't lose your place
+  const old = segs.length && segAt(cur), oldIndex = segs.indexOf(old), oldFrac = old && (cur - old.start) / old.len;
+  const W = stage.clientWidth, H = stage.clientHeight;
+  persp = Math.round(.75 * Math.max(W, H));
+  stage.style.perspective = persp + 'px';
+
+  // scale the textures so a wide bay's red panel fills the screen
+  const k = texScale = Math.max(W / TEXTURE.frameW, H / TEXTURE.frameH);
+  wideW = TEXTURE.wide * k;
+  wallH = TEXTURE.wallH * k;
+  const narrowW = TEXTURE.narrow * k;
+  const ceilingY = -TEXTURE.eyeY * k, floorY = (TEXTURE.wallH - TEXTURE.eyeY) * k, wallY = (ceilingY + floorY) / 2;
+
+  // the long walls, entrance to far end
+  const bays = ['narrow', 'narrow', 'wide', 'narrow', 'wide', 'narrow'];
+  const lengths = bays.map(b => b === 'wide' ? wideW : narrowW);
+  const hallLength = lengths.reduce((a, b) => a + b), hallWidth = 2 * narrowW + wideW;
+  const wideZ = [];
+  let z = hallLength / 2;
+  bays.forEach((bay, i) => {
+    const len = lengths[i], zc = z - len / 2;
+    z -= len;
+    const tex = bay === 'wide' ? 'wide' : i % 2 ? 'narrow-b' : 'narrow-a';
+    if (bay === 'wide') wideZ.push(zc);
+    // the first bay is always behind the camera, and browsers glitch drawing things behind you
+    if (i === 0) return;
+    place('L' + i, `bay side ${tex}`, len + 2, wallH, -hallWidth / 2, wallY, zc, 'rotateY(90deg)');
+    place('R' + i, `bay side ${tex}`, len + 2, wallH, hallWidth / 2, wallY, zc, 'rotateY(-90deg)');
+    // floor and ceiling go in strips; the offsets keep the pattern lined up
+    Object.assign(place('F' + i, 'floor', hallWidth, len + 2, 0, floorY, zc, 'rotateX(90deg)').style, {
+      backgroundSize: `${TEXTURE.floor * .45}px ${TEXTURE.floorH * .45}px`,
+      backgroundPosition: `center ${-(zc - len / 2 + hallLength / 2) / k}px`,
+    });
+    Object.assign(place('C' + i, 'ceiling', hallWidth, len + 2, 0, ceilingY, zc, 'rotateX(-90deg)').style, {
+      backgroundSize: `${TEXTURE.ceil * .8}px ${TEXTURE.ceilH * .8}px`,
+      backgroundPosition: `center ${-(hallLength / 2 - zc - len / 2) / k}px`,
+    });
+  });
+  // far wall (you never turn around to face the entrance, so it isn't built)
+  place('far0', 'bay narrow-a', narrowW + 2, wallH, -(wideW + narrowW) / 2, wallY, -hallLength / 2);
+  place('far1', 'bay wide', wideW + 2, wallH, 0, wallY, -hallLength / 2);
+  place('far2', 'bay narrow-b', narrowW + 2, wallH, (wideW + narrowW) / 2, wallY, -hallLength / 2);
+
+  // where each room's text hangs on a wall (the floating statement just needs a camera spot)
+  const stops = {
+    start: { eye: [0, hallLength / 2 - narrowW + 2], yaw: 0 },
+    L1: { at: [-hallWidth / 2 + 2, wideZ[0]], yaw: 90 },
+    R1: { at: [hallWidth / 2 - 2, wideZ[0]], yaw: -90 },
+    L2: { at: [-hallWidth / 2 + 2, wideZ[1]], yaw: 90 },
+    R2: { at: [hallWidth / 2 - 2, wideZ[1]], yaw: -90 },
+    far: { at: [0, -hallLength / 2 + 2], yaw: 0 },
+  };
+  poses = [];
+  rooms.forEach((room, i) => {
+    if (overlay[i]) return poses.push(poses[i - 1]); // camera stays put during the fade to black
+    const stop = stops[room.dataset.place], r = stop.yaw * Math.PI / 180;
+    const nx = Math.sin(r) * persp, nz = Math.cos(r) * persp;
+    const at = stop.at || [stop.eye[0] - nx, stop.eye[1] - nz];
+    if (!floating[i]) Object.assign(room.style, { width: W + 'px', height: H + 'px', left: -W / 2 + 'px', top: -H / 2 + 'px', transform: `translate3d(${at[0]}px,0,${at[1]}px) rotateY(${stop.yaw}deg)` });
+    poses.push({ x: at[0] + nx, z: at[1] + nz, yaw: stop.yaw });
+  });
+
+  // scroll timeline: read a room's text, then walk to the next room
+  const lead = H * .12, tail = H * .22;
+  segs = [];
+  let s = 0;
+  rooms.forEach((room, i) => {
+    if (i) {
+      const turn = Math.abs(poses[i].yaw - poses[i - 1].yaw);
+      const len = H * (overlay[i] ? 1.4 : turn >= 180 ? 1.9 : turn ? 1.5 : 1.2);
+      segs.push({ a: i - 1, b: i, start: s, len });
+      s += len;
+    }
+    const r = readers[i];
+    r.overflow = Math.max(0, Math.ceil(r.text.offsetHeight - r.box.clientHeight));
+    // extra scroll at the very end to slide the last line to the middle
+    r.extra = r.finale ? H * 1.2 : 0;
+    if (r.finale) r.finaleY = r.finale.offsetTop + r.finale.offsetHeight / 2 - r.box.clientHeight / 2;
+    const len = lead + r.overflow + r.extra + tail;
+    segs.push({ i, start: s, len, lead });
+    s += len;
+  });
+  total = s;
+  document.body.style.height = Math.ceil(total + H) + 'px';
+
+  if (old) {
+    const seg = segs[oldIndex];
+    scrollTo(0, cur = seg.start + oldFrac * seg.len);
+  }
+  last = null;
+}
+
+function render(y) {
+  y = Math.max(0, Math.min(total, y));
+  const seg = segAt(y);
+  let x, z, yaw, arc = 0, dark = 0, fin = 0, active, progress, fade;
+  if ('i' in seg) {
+    // reading
+    ({ x, z, yaw } = poses[seg.i]);
+    active = seg.i;
+    dark = +overlay[seg.i];
+    const { overflow, extra } = readers[seg.i];
+    if (extra) fin = ease(clamp((y - seg.start - seg.lead - overflow) / extra));
+    progress = j => j < seg.i ? 1 : j > seg.i ? 0 : overflow ? clamp((y - seg.start - seg.lead) / overflow) : 0;
+    fade = j => +(j === seg.i);
+  } else {
+    // walking
+    const raw = clamp((y - seg.start) / seg.len), t = ease(raw);
+    const A = poses[seg.a], B = poses[seg.b], still = overlay[seg.b];
+    x = lerp(A.x, B.x, t);
+    z = lerp(A.z, B.z, t);
+    yaw = lerp(A.yaw, B.yaw, t);
+    // halfway through a walk the camera steps back and up to show the room
+    if (still) dark = clamp(raw * 2);
+    else arc = Math.sin(Math.PI * t) * (reduceMotion.matches ? .3 : 1);
+    active = t < .5 ? seg.a : seg.b;
+    progress = j => +(j <= seg.a);
+    fade = j => j === seg.a ? 1 - clamp(raw / .35) : j === seg.b ? clamp((raw - (still ? .55 : .65)) / .35) : 0;
+  }
+  blackout.style.opacity = dark;
+
+  // browsers can glitch drawing things behind you, so hide any piece fully behind the camera
+  const r = yaw * Math.PI / 180, back = arc * .5 * wideW;
+  const eyeX = x + Math.sin(r) * back, eyeZ = z + Math.cos(r) * back;
+  for (const el of Object.values(planes)) {
+    const behind = el.corners.every(([px, pz]) => (px - eyeX) * -Math.sin(r) + (pz - eyeZ) * -Math.cos(r) < -.1 * wallH);
+    el.style.visibility = behind ? 'hidden' : '';
+  }
+  world.style.transform = `translateZ(${persp - arc * .5 * wideW}px) rotateX(${-arc * 5}deg) rotateY(${-yaw}deg) translate3d(${-x}px,${arc * .1 * wallH}px,${-z}px)`;
+
+  readers.forEach((r, j) => {
+    const f = r.finale && j === active ? fin : 0;
+    const shift = f ? lerp(r.overflow, r.finaleY, f) : r.overflow * progress(j);
+    r.text.style.transform = `translateY(${-Math.round(shift)}px)`;
+    if (r.finale) rooms[j].style.setProperty('--fin', f);
+  });
+  rooms.forEach((room, j) => {
+    if (!floating[j]) return;
+    room.style.opacity = fade(j);
+    room.style.visibility = fade(j) ? 'visible' : 'hidden';
+  });
+  hint.classList.toggle('gone', y > 40);
+}
+
+// smooth the scroll so the camera glides
+let lastTick = 0;
+function tick(now) {
+  lastTick = now;
+  cur += (scrollY - cur) * (reduceMotion.matches ? 1 : .09);
+  if (Math.abs(scrollY - cur) < .3) cur = scrollY;
+  if (cur !== last) render(last = cur);
+  requestAnimationFrame(tick);
+}
+// background tabs pause animation frames, so follow the scroll directly there
+addEventListener('scroll', () => {
+  if (performance.now() - lastTick > 150) render(last = cur = scrollY);
+}, { passive: true });
+addEventListener('resize', () => { layout(); render(cur); });
+
+layout();
+render(cur);
+requestAnimationFrame(tick);
+document.fonts.ready.then(() => { layout(); render(cur); });
+</script>
+
+</body>
+</html>
